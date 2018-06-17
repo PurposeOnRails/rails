@@ -8,7 +8,8 @@ class <%= migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Mi
       t.string :<%= attribute.name %><%= attribute.inject_options %>
 <% else -%>
       t.<%= attribute.type %> :<%= attribute.name %><%= attribute.inject_options %>
-      t.string :<%= attribute.name %>_purpose # bit string for purposes
+      t.string :<%= attribute.name %>_aip # bit string for allowed purposes
+      t.string :<%= attribute.name %>_pip # bit string for prohibited purposes
 <% end -%>
 <% end -%>
 <% if options[:timestamps] %>
@@ -20,7 +21,8 @@ class <%= migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Mi
 <% end -%>
 <% attributes_with_index.each do |attribute| -%>
     add_index :<%= table_name %>, :<%= attribute.index_name %><%= attribute.inject_index_options %>
-    add_index :<%= table_name %>, :<%= attribute.index_name %>_purpose
+    add_index :<%= table_name %>, :<%= attribute.index_name %>_aip
+    add_index :<%= table_name %>, :<%= attribute.index_name %>_pip
 <% end -%>
   end
 end
