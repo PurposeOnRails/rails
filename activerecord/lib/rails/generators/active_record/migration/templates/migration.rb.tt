@@ -9,12 +9,10 @@ class <%= migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Mi
     add_index :<%= table_name %>, :<%= attribute.index_name %><%= attribute.inject_index_options %>, unique: true
   <%- else -%>
     add_column :<%= table_name %>, :<%= attribute.name %>, :<%= attribute.type %><%= attribute.inject_options %>
-    add_column :<%= table_name %>, :<%= attribute.name %>_aip, :string
-    add_column :<%= table_name %>, :<%= attribute.name %>_pip, :string
+    add_column :<%= table_name %>, :<%= attribute.name %>_aip, :string # bit string for allowed purposes
     <%- if attribute.has_index? -%>
     add_index :<%= table_name %>, :<%= attribute.index_name %><%= attribute.inject_index_options %>
-    add_index :<%= table_name %>, :<%= attribute.index_name %>_aip
-    add_index :<%= table_name %>, :<%= attribute.index_name %>_pip
+    add_index :<%= table_name %>, :<%= attribute.index_name %>_aip # bit string for allowed purposes
     <%- end -%>
   <%- end -%>
 <%- end -%>
@@ -40,12 +38,10 @@ class <%= migration_class_name %> < ActiveRecord::Migration[<%= ActiveRecord::Mi
   <%- else -%>
     <%- if attribute.has_index? -%>
     remove_index :<%= table_name %>, :<%= attribute.index_name %><%= attribute.inject_index_options %>
-    remove_index :<%= table_name %>, :<%= attribute.index_name %>_aip
-    remove_index :<%= table_name %>, :<%= attribute.index_name %>_pip
+    remove_index :<%= table_name %>, :<%= attribute.index_name %>_aip # bit string for allowed purposes
     <%- end -%>
     remove_column :<%= table_name %>, :<%= attribute.name %>, :<%= attribute.type %><%= attribute.inject_options %>
-    remove_column :<%= table_name %>, :<%= attribute.name %>_aip, :string
-    remove_column :<%= table_name %>, :<%= attribute.name %>_pip, :string
+    remove_column :<%= table_name %>, :<%= attribute.name %>_aip, :string # bit string for allowed purposes
   <%- end -%>
 <%- end -%>
 <%- end -%>
