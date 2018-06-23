@@ -24,7 +24,7 @@
 <% else -%>
     <%%= form.label :<%= attribute.column_name %> %>
     <%%= form.<%= attribute.field_type %> :<%= attribute.column_name %> %>
-    <%%= form.<%= attribute.field_type %> :<%= attribute.column_name %>_aip %>
+    <%%= form.string :<%= attribute.column_name %>_aip %>
 <% end -%>
   </div>
 
