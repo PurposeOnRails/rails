@@ -24,6 +24,11 @@
 <% else -%>
     <%%= form.label :<%= attribute.column_name %> %>
     <%%= form.<%= attribute.field_type %> :<%= attribute.column_name %> %>
+  </div>
+
+  <div class="field">
+    <%%= form.label :<%= attribute.column_name %>_aip %>
+    <%%= form.text_field :<%= attribute.column_name %>_aip %>
 <% end -%>
   </div>
 
