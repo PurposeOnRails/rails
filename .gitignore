@@ -16,3 +16,6 @@ package-lock.json
 pkg/
 *.sublime-project
 *.sublime-workspace
+
+demo
+tmp
