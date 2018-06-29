@@ -31,6 +31,9 @@ module Rails
         class_option :database,            type: :string, aliases: "-d", default: "sqlite3",
                                            desc: "Preconfigure for selected database (options: #{DATABASES.join('/')})"
 
+        class_option :purposeful,          type: :string, aliases: "-p", default: "true",
+                                           desc: "Make this app purposeful (options: true/false)."
+
         class_option :skip_yarn,           type: :boolean, default: false,
                                            desc: "Don't use Yarn for managing JavaScript dependencies"
 
@@ -137,6 +140,7 @@ module Rails
          jbuilder_gemfile_entry,
          psych_gemfile_entry,
          cable_gemfile_entry,
+         purpose_gemfile_entry,
          @extra_entries].flatten.find_all(&@gem_filter)
       end
 
@@ -195,6 +199,12 @@ module Rails
         return [] if options[:skip_puma]
         comment = "Use Puma as the app server"
         GemfileEntry.new("puma", "~> 3.11", comment)
+      end
+
+      def purpose_gemfile_entry # :doc:
+        return [] unless options[:purposeful] == 'true'
+        comment = "Use ActiveYaml for Purpose Storage"
+        GemfileEntry.new("active_hash", "~> 2.1", comment)
       end
 
       def include_all_railties? # :doc:
