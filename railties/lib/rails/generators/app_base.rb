@@ -203,6 +203,8 @@ module Rails
 
       def purpose_gemfile_entry # :doc:
         return [] unless options[:purposeful] == 'true'
+
+        generate_purpose_model
         comment = "Use ActiveYaml for Purpose Storage"
         GemfileEntry.new("active_hash", "~> 2.1", comment)
       end
@@ -319,6 +321,52 @@ module Rails
         when "jdbcpostgresql" then ["activerecord-jdbcpostgresql-adapter", nil]
         when "jdbc"           then ["activerecord-jdbc-adapter", nil]
         else [options[:database], nil]
+        end
+      end
+
+      def generate_purpose_model
+        return unless options[:purposeful] == 'true'
+
+        `mkdir app`
+        `mkdir app/models`
+        `touch app/models/purpose.rb`
+
+        File.open('app/models/purpose.rb', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+              class Purpose < ActiveYaml::Base
+                include ActiveHash::Associations
+
+                field :name
+
+                # a purpose can have many children_purposes (cf. purpose_tree)
+                has_many :children, class_name: 'Purpose'
+              end
+            HEREDOC
+          )
+        end
+
+        File.open('app/models/purposes.yml', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+              ---
+              # add your purpose tree here
+              purposes:
+                sales:
+                  id: 1
+                  name: sales
+                marketing:
+                  id: 2
+                  name: marketing
+                  children:
+                    email:
+                      id: 3
+                      name: email
+                    telephone:
+                      id: 4
+                      name: telephone
+            HEREDOC
+          )
         end
       end
 
