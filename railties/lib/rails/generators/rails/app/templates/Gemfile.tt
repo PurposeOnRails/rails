@@ -26,6 +26,9 @@ ruby <%= "'#{RUBY_VERSION}'" -%>
 # gem 'image_processing', '~> 1.2'
 <% end -%>
 
+# Use ActiveYaml for Purpose Storage
+gem 'active_hash'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
