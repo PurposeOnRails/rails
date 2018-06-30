@@ -348,29 +348,107 @@ module Rails
           )
         end
 
-        File.open('purposes.yml', 'w') do |file|
+        File.open('purposes.seed', 'w') do |file|
           file.write(
             <<~HEREDOC
-              ---
-              # add your purpose tree here
-              sales:
-                id: 1
-                name: sales
-              marketing:
-                id: 2
-                name: marketing
-              calls:
-                id: 3
-                name: sales_calls
-                parent_id: 1
-              email:
-                id: 4
-                name: email
-                parent_id: 2
-              telephone:
-                id: 5
-                name: telephone
-                parent_id: 2
+---
+# add your purpose tree here
+sales:
+  id: 1
+  name: sales
+  children:
+    calls:
+      id: 3
+      name: sales_calls
+marketing:
+  id: 2
+  name: marketing
+  children:
+    external:
+      id: 6
+      name: external_marketing
+      children:
+        email:
+          id: 7
+          name: external_marketing_email
+          children:
+            annoying_emails:
+              id: 8
+              name: annoying_external_marketing_emails
+            useful_emails:
+              id: 9
+              name: useful_external_marketing_emails
+    email:
+      id: 4
+      name: email
+    telephone:
+      id: 5
+      name: telephone
+            HEREDOC
+          )
+        end
+
+        File.open('purpose_generator.rb', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+def parse(purpose, pid)
+  return {} if purpose.nil?
+  purposes = {}
+
+  id = purpose['id']
+  name = purpose['name']
+
+  if purpose['children']
+    purpose['children'].each do |_, value|
+      purposes.merge!(parse(value, id))
+    end
+  end
+
+  le_hash = { 'id' => id, 'name' => name }
+  le_hash['parent_id'] = pid unless pid.nil?
+
+  purposes.merge!(name => le_hash)
+
+  return purposes
+end
+
+require 'yaml'
+stuff = YAML.load_file('purposes.seed')
+
+purposes = {}
+
+stuff.each do |key, value|
+  purposes.merge!(parse(value, nil))
+end
+
+purposes = purposes.sort_by { |key, value| value['id'] }.to_h
+
+File.open('purposes.yml', 'w') { |f| f.write purposes.to_yaml }
+            HEREDOC
+          )
+        end
+
+        `ruby purpose_generator.rb`
+
+        File.open('PURPOSEFUL_README', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+# Purpose Generation
+
+In purposes.seed you will find a demo purpose tree.
+Using this syntax you can model you purpose tree. Unfortunately,
+this syntax won't work for the model that is automatically generated
+from the yaml file. For this purpose there is a purpose_generator.rb
+file that you can use to generate the appropriate format.
+Simply execute `$ ruby purpose_generator.rb` to generate the appropriate
+file. If you encounter any errors, your schema is most likely corrupt.
+
+Things to note:
+- every purpose needs the following attributes
+  - id: a counting id (unique!)
+  - name: an identifying name (unique!)
+  - children: embedded child purposes (optional)
+- node names are ignored, only the name attribute is used
             HEREDOC
           )
         end
