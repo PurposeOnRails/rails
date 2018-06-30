@@ -337,34 +337,40 @@ module Rails
               class Purpose < ActiveYaml::Base
                 include ActiveHash::Associations
 
+                field :id
                 field :name
 
                 # a purpose can have many children_purposes (cf. purpose_tree)
-                has_many :children, class_name: 'Purpose'
+                has_many :children, class_name: "Purpose", foreign_key: "parent_id"
+                belongs_to :parent, class_name: "Purpose"
               end
             HEREDOC
           )
         end
 
-        File.open('app/models/purposes.yml', 'w') do |file|
+        File.open('purposes.yml', 'w') do |file|
           file.write(
             <<~HEREDOC
               ---
               # add your purpose tree here
-              purposes:
-                sales:
-                  id: 1
-                  name: sales
-                marketing:
-                  id: 2
-                  name: marketing
-                  children:
-                    email:
-                      id: 3
-                      name: email
-                    telephone:
-                      id: 4
-                      name: telephone
+              sales:
+                id: 1
+                name: sales
+              marketing:
+                id: 2
+                name: marketing
+              calls:
+                id: 3
+                name: sales_calls
+                parent_id: 1
+              email:
+                id: 4
+                name: email
+                parent_id: 2
+              telephone:
+                id: 5
+                name: telephone
+                parent_id: 2
             HEREDOC
           )
         end
