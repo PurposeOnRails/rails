@@ -405,14 +405,14 @@ def parse(purpose, pid)
 end
 
 require 'yaml'
-stuff = YAML.load_file('purposes.seed')
+tree = YAML.load_file('purposes.seed')
 
 purposes = {}
 
 $id = 0
-stuff.each do |key, value|
+tree.each do |_, node|
   $id += 1
-  purposes.merge!(parse(value, nil))
+  purposes.merge!(parse(node, nil))
 end
 
 purposes = purposes.sort_by { |key, value| value['id'] }.to_h
@@ -439,7 +439,7 @@ file. If you encounter any errors, your schema is most likely corrupt.
 
 Things to note:
 - every purpose needs the following attributes
-  - name: an identifying name (unique!)
+  - name: a descriptive, identifying name (unique!)
   - children: embedded child purposes (optional)
 - node names are ignored, only the name attribute is used
             HEREDOC
