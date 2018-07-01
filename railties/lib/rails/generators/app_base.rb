@@ -424,7 +424,7 @@ File.open('purposes.yml', 'w') { |f| f.write purposes.to_yaml }
 
         `ruby purpose_generator.rb`
 
-        File.open('PURPOSEFUL_README', 'w') do |file|
+        File.open('PURPOSEFUL_README.md', 'w') do |file|
           file.write(
             <<~HEREDOC
 # Purpose Generation
