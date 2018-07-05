@@ -531,6 +531,8 @@ module ActionController
         case filter
         when Symbol, String
           permitted_scalar_filter(params, filter)
+          aip_filter = filter.to_s + "_aip" # todo: load AIP suffix from config
+          permitted_scalar_filter(params, aip_filter)
         when Hash
           hash_filter(params, filter)
         end

@@ -18,3 +18,5 @@ pkg/
 *.sublime-workspace
 .DS_Store
 .idea/
+demo
+tmp
