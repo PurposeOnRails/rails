@@ -1,4 +1,9 @@
 # frozen_string_literal: true
+# ======================================================
+# !!! Added by prails
+# 
+require "json"
+# ======================================================
 
 module ActiveRecord
   # = Active Record \Relation
@@ -19,12 +24,16 @@ module ActiveRecord
     include FinderMethods, Calculations, SpawnMethods, QueryMethods, Batches, Explain, Delegation
 
     attr_reader :table, :klass, :loaded, :predicate_builder
-    attr_accessor :skip_preloading_value
+    # ====================================
+    # !!! Altered by prails
+    attr_accessor :skip_preloading_value, :purpose_fields, :for_purpose
+    # ====================================
     alias :model :klass
     alias :loaded? :loaded
     alias :locked? :lock_value
 
     def initialize(klass, table: klass.arel_table, predicate_builder: klass.predicate_builder, values: {})
+      # byebug
       @klass  = klass
       @table  = table
       @values = values
@@ -32,6 +41,19 @@ module ActiveRecord
       @loaded = false
       @predicate_builder = predicate_builder
       @delegate_to_klass = false
+      @for_purpose = -1
+
+      # ======================================================
+      # !!! Added by prails
+      # 
+      @purpose_fields = []
+      @klass.attribute_names.each do |attribute|
+        if attribute[-4..-1] == "_aip"
+          @purpose_fields << attribute[0..-5]
+        end
+      end
+      # byebug
+      # ======================================================
     end
 
     def initialize_copy(other)
@@ -224,12 +246,42 @@ module ActiveRecord
 
     # Converts relation objects to Array.
     def to_ary
+      # byebug
       records.dup
+      # byebug
     end
     alias to_a to_ary
 
     def records # :nodoc:
+      # byebug
       load
+      # byebug
+
+      # ======================================================
+      # !!! Added by prails
+      # Sanitize the output based on given purpose
+      # 
+      if self.for_purpose and not self.purpose_fields.empty?
+        @records.each do |record|
+          record.attributes.each do |k,v|
+            if self.purpose_fields.include? k
+              # byebug
+
+              purposes = []
+              allowed_purposes = JSON.parse(record[k + "_aip"]) unless not record[k + "_aip"]
+              if allowed_purposes and allowed_purposes["allowed_purposes"]
+                purposes = allowed_purposes["allowed_purposes"]
+              end
+
+              if not purposes.include? self.for_purpose
+                record[k] = nil
+              end
+            end
+          end
+        end
+      end
+      # byebug
+
       @records
     end
 
@@ -480,8 +532,10 @@ module ActiveRecord
     #
     #   Post.where(published: true).load # => #<ActiveRecord::Relation>
     def load(&block)
+      # byebug
       exec_queries(&block) unless loaded?
 
+      # byebug
       self
     end
 
@@ -504,6 +558,7 @@ module ActiveRecord
     #   User.where(name: 'Oscar').to_sql
     #   # => SELECT "users".* FROM "users"  WHERE "users"."name" = 'Oscar'
     def to_sql
+      # byebug
       @to_sql ||= begin
                     relation = self
 

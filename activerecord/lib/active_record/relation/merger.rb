@@ -8,6 +8,7 @@ module ActiveRecord
       attr_reader :relation, :hash
 
       def initialize(relation, hash)
+        # byebug
         hash.assert_valid_keys(*Relation::VALUE_METHODS)
 
         @relation = relation

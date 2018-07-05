@@ -30,6 +30,7 @@ module ActiveRecord
     #
     # This is mainly intended for sharing common conditions between multiple associations.
     def merge(other)
+      # byebug
       if other.is_a?(Array)
         records & other
       elsif other

@@ -16,3 +16,5 @@ package-lock.json
 pkg/
 *.sublime-project
 *.sublime-workspace
+.DS_Store
+.idea/
