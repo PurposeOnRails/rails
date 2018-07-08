@@ -121,7 +121,7 @@ module ActiveRecord
     # in order to avoid an additional query per purpose_field we save the purpose here in the relation
     # and sanitize later on
     def for(*args)
-      # byebug
+      byebug
       if args.size == 1
         # und gott sprach: es darf nur einen purpose geben
         self.for_purpose = args.first

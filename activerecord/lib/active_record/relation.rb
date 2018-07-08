@@ -33,7 +33,7 @@ module ActiveRecord
     alias :locked? :lock_value
 
     def initialize(klass, table: klass.arel_table, predicate_builder: klass.predicate_builder, values: {})
-      # byebug
+      byebug
       @klass  = klass
       @table  = table
       @values = values
@@ -52,7 +52,7 @@ module ActiveRecord
           @purpose_fields << attribute[0..-5]
         end
       end
-      # byebug
+      byebug
       # ======================================================
     end
 
@@ -246,16 +246,16 @@ module ActiveRecord
 
     # Converts relation objects to Array.
     def to_ary
-      # byebug
+      byebug
       records.dup
       # byebug
     end
     alias to_a to_ary
 
     def records # :nodoc:
-      # byebug
+      byebug
       load
-      # byebug
+      byebug
 
       # ======================================================
       # !!! Added by prails
@@ -265,7 +265,7 @@ module ActiveRecord
         @records.each do |record|
           record.attributes.each do |k,v|
             if self.purpose_fields.include? k
-              # byebug
+              byebug
 
               purposes = []
               allowed_purposes = JSON.parse(record[k + "_aip"]) unless not record[k + "_aip"]
@@ -280,7 +280,7 @@ module ActiveRecord
           end
         end
       end
-      # byebug
+      byebug
 
       @records
     end
@@ -532,10 +532,10 @@ module ActiveRecord
     #
     #   Post.where(published: true).load # => #<ActiveRecord::Relation>
     def load(&block)
-      # byebug
+      byebug
       exec_queries(&block) unless loaded?
 
-      # byebug
+      byebug
       self
     end
 
@@ -558,7 +558,7 @@ module ActiveRecord
     #   User.where(name: 'Oscar').to_sql
     #   # => SELECT "users".* FROM "users"  WHERE "users"."name" = 'Oscar'
     def to_sql
-      # byebug
+      byebug
       @to_sql ||= begin
                     relation = self
 
