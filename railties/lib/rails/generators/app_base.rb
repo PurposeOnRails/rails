@@ -31,6 +31,9 @@ module Rails
         class_option :database,            type: :string, aliases: "-d", default: "sqlite3",
                                            desc: "Preconfigure for selected database (options: #{DATABASES.join('/')})"
 
+        class_option :purposeful,          type: :string, aliases: "-p", default: "true",
+                                           desc: "Make this app purposeful (options: true/false)."
+
         class_option :skip_yarn,           type: :boolean, default: false,
                                            desc: "Don't use Yarn for managing JavaScript dependencies"
 
@@ -137,6 +140,7 @@ module Rails
          jbuilder_gemfile_entry,
          psych_gemfile_entry,
          cable_gemfile_entry,
+         purpose_gemfile_entry,
          @extra_entries].flatten.find_all(&@gem_filter)
       end
 
@@ -195,6 +199,14 @@ module Rails
         return [] if options[:skip_puma]
         comment = "Use Puma as the app server"
         GemfileEntry.new("puma", "~> 3.11", comment)
+      end
+
+      def purpose_gemfile_entry # :doc:
+        return [] unless options[:purposeful] == 'true'
+
+        generate_purpose_model
+        comment = "Use ActiveYaml for Purpose Storage"
+        GemfileEntry.new("active_hash", "~> 2.1", comment)
       end
 
       def include_all_railties? # :doc:
@@ -309,6 +321,129 @@ module Rails
         when "jdbcpostgresql" then ["activerecord-jdbcpostgresql-adapter", nil]
         when "jdbc"           then ["activerecord-jdbc-adapter", nil]
         else [options[:database], nil]
+        end
+      end
+
+      def generate_purpose_model
+        return unless options[:purposeful] == 'true'
+
+        `mkdir app`
+        `mkdir app/models`
+        `touch app/models/purpose.rb`
+
+        File.open('app/models/purpose.rb', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+              class Purpose < ActiveYaml::Base
+                include ActiveHash::Associations
+
+                field :id
+                field :name
+
+                # a purpose can have many children_purposes (cf. purpose_tree)
+                has_many :children, class_name: "Purpose", foreign_key: "parent_id"
+                belongs_to :parent, class_name: "Purpose"
+              end
+            HEREDOC
+          )
+        end
+
+        File.open('purposes.seed', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+---
+# add your purpose tree here
+sales:
+  name: sales
+  children:
+    calls:
+      name: sales_calls
+marketing:
+  name: marketing
+  children:
+    external:
+      name: external_marketing
+      children:
+        email:
+          name: external_marketing_email
+          children:
+            annoying_emails:
+              name: annoying_external_marketing_emails
+            useful_emails:
+              name: useful_external_marketing_emails
+    email:
+      name: email
+    telephone:
+      name: telephone
+            HEREDOC
+          )
+        end
+
+        File.open('purpose_generator.rb', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+def parse(purpose, pid)
+  return {} if purpose.nil?
+  purposes = {}
+
+  node_id = $id
+  name = purpose['name']
+
+  if purpose['children']
+    purpose['children'].each do |_, value|
+      $id += 1
+      purposes.merge!(parse(value, node_id))
+    end
+  end
+
+  le_hash = { 'id' => node_id, 'name' => name }
+  le_hash['parent_id'] = pid unless pid.nil?
+
+  purposes.merge!(name => le_hash)
+
+  return purposes
+end
+
+require 'yaml'
+tree = YAML.load_file('purposes.seed')
+
+purposes = {}
+
+$id = 0
+tree.each do |_, node|
+  $id += 1
+  purposes.merge!(parse(node, nil))
+end
+
+purposes = purposes.sort_by { |key, value| value['id'] }.to_h
+
+File.open('purposes.yml', 'w') { |f| f.write purposes.to_yaml }
+            HEREDOC
+          )
+        end
+
+        `ruby purpose_generator.rb`
+
+        File.open('PURPOSEFUL_README.md', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+# Purpose Generation
+
+In purposes.seed you will find a demo purpose tree.
+Using this syntax you can model you purpose tree. Unfortunately,
+this syntax won't work for the model that is automatically generated
+from the yaml file. For this purpose there is a purpose_generator.rb
+file that you can use to generate the appropriate format.
+Simply execute `$ ruby purpose_generator.rb` to generate the appropriate
+file. If you encounter any errors, your schema is most likely corrupt.
+
+Things to note:
+- every purpose needs the following attributes
+  - name: a descriptive, identifying name (unique!)
+  - children: embedded child purposes (optional)
+- node names are ignored, only the name attribute is used
+            HEREDOC
+          )
         end
       end
 
