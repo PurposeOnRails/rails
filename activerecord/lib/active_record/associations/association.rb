@@ -19,11 +19,15 @@ module ActiveRecord
     #         HasManyThroughAssociation + ThroughAssociation
     class Association #:nodoc:
       attr_reader :owner, :target, :reflection
-      attr_accessor :inversed
+      # ==========================================================================================
+      # !!! Altered by prails
+      attr_accessor :inversed, :purposes
+      # ==========================================================================================
 
       delegate :options, to: :reflection
 
       def initialize(owner, reflection)
+        byebug
         reflection.check_validity!
 
         @owner, @reflection = owner, reflection

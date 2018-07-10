@@ -228,7 +228,9 @@ module ActiveRecord
 
     # Returns the association instance for the given name, instantiating it if it doesn't already exist
     def association(name) #:nodoc:
+      byebug
       association = association_instance_get(name)
+
 
       if association.nil?
         unless reflection = self.class._reflect_on_association(name)
@@ -238,6 +240,25 @@ module ActiveRecord
         association_instance_set(name, association)
       end
 
+
+      # ======================================================
+      # !!! Added by prails
+      # 
+      purposes = []
+      if name and association.owner
+        # der name ist hier der des models auf das nun zugegriffen wird. 
+        # also schauen, ob es dazu ein _aip feld im owner gibt (das model von dem aus zugegriffen wird)
+        purpose_aip_field_name = name.to_s + "_aip"
+        # todo catch nomethod error
+        allowed_purposes = association.owner.send(purpose_aip_field_name)
+        allowed_purposes_json = JSON.parse(allowed_purposes) if allowed_purposes
+        if allowed_purposes_json and allowed_purposes_json["allowed_purposes"]
+          purposes = allowed_purposes_json["allowed_purposes"]
+        end
+      end
+      # ======================================================
+      association.purposes = purposes
+      byebug
       association
     end
 

@@ -650,6 +650,7 @@ module ActiveRecord
     end
 
     def preload_associations(records) # :nodoc:
+      byebug
       preload = preload_values
       preload += includes_values unless eager_loading?
       preloader = nil
