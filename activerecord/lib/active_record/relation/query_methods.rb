@@ -111,6 +111,35 @@ module ActiveRecord
     #
     # Note that #includes works with association names while #references needs
     # the actual table name.
+
+    # ======================================================
+    # !!! Added by prails
+    # 
+    # in order to allow a "for" method appended to a query, this must be implemented
+    # at this time there is nothing being queried and 
+    # the information about which field allows which purpouse lies within the db. 
+    # in order to avoid an additional query per purpose_field we save the purpose here in the relation
+    # and sanitize later on
+    def for(*args)
+      # byebug
+      if args.size == 1
+        # und gott sprach: es darf nur einen purpose geben
+        self.for_purpose = args.first
+      else
+        # hier unterschiedliche exceptions raisen, je nachdem ob keiner oder zu viele purposes angegeben wurden
+        if args.size < 1
+          raise ArgumentError, "purpose-ID must be given. `for' takes exactly one purpose-ID."
+        else
+          raise ArgumentError, "To many purposes. `for' takes only and exactly one purpose-ID."
+        end
+      end
+      self
+    end
+    # ======================================================
+    
+
+
+
     def includes(*args)
       check_if_method_has_arguments!(:includes, args)
       spawn.includes!(*args)

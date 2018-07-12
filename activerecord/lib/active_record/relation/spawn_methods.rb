@@ -30,6 +30,7 @@ module ActiveRecord
     #
     # This is mainly intended for sharing common conditions between multiple associations.
     def merge(other)
+      # byebug
       if other.is_a?(Array)
         records & other
       elsif other
@@ -40,6 +41,7 @@ module ActiveRecord
     end
 
     def merge!(other) # :nodoc:
+      # byebug
       if other.is_a?(Hash)
         Relation::HashMerger.new(self, other).merge
       elsif other.is_a?(Relation)
