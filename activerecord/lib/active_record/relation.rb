@@ -33,7 +33,7 @@ module ActiveRecord
     alias :locked? :lock_value
 
     def initialize(klass, table: klass.arel_table, predicate_builder: klass.predicate_builder, values: {})
-      byebug
+      # byebug
       @klass  = klass
       @table  = table
       @values = values
@@ -52,7 +52,7 @@ module ActiveRecord
           @purpose_fields << attribute[0..-5]
         end
       end
-      byebug
+      # byebug
       # ======================================================
     end
 
@@ -246,26 +246,40 @@ module ActiveRecord
 
     # Converts relation objects to Array.
     def to_ary
-      byebug
-      records.dup
       # byebug
+      records.dup
     end
     alias to_a to_ary
 
     def records # :nodoc:
-      byebug
+      # byebug
       load
-      byebug
+      # byebug
 
       # ======================================================
       # !!! Added by prails
       # Sanitize the output based on given purpose
       # 
+      # 
+      # if an association is set, this means there are several relations being oncatenated. If on that association there are purposes
+      # set this means, that in the owner of that assiciation was defoned, for what purposes you can query that association. 
+      # E.g. 'user.heart_rate_logs' will only return heart_rate_logs of the user if in the field 'user.heart_rate_logs_aip' contains
+      # the given purpose. Therefore only a query like user.heart_rate_logs.for(:purpose_id) will return the heart_rate_logs, if 
+      # 'userheart_rate_logs_aip' contains :purpose_id
+      if @association and @association.purposes
+        if not @association.purposes.include? self.for_purpose
+          # In this case the given purpose was not allowed to query the whole association
+          @records = []
+        end
+      end
+
+      # this sanitizes the attributs of the records themselves. This counts for normal relations and also for associations, if there are records left
+      # checks each attribute's "_aip" field if the purpose is contained
       if self.for_purpose and not self.purpose_fields.empty?
         @records.each do |record|
           record.attributes.each do |k,v|
             if self.purpose_fields.include? k
-              byebug
+              # byebug
 
               purposes = []
               allowed_purposes = JSON.parse(record[k + "_aip"]) unless not record[k + "_aip"]
@@ -280,7 +294,7 @@ module ActiveRecord
           end
         end
       end
-      byebug
+      # byebug
 
       @records
     end
@@ -532,10 +546,10 @@ module ActiveRecord
     #
     #   Post.where(published: true).load # => #<ActiveRecord::Relation>
     def load(&block)
-      byebug
+      # byebug
       exec_queries(&block) unless loaded?
 
-      byebug
+      # byebug
       self
     end
 
@@ -558,7 +572,7 @@ module ActiveRecord
     #   User.where(name: 'Oscar').to_sql
     #   # => SELECT "users".* FROM "users"  WHERE "users"."name" = 'Oscar'
     def to_sql
-      byebug
+      # byebug
       @to_sql ||= begin
                     relation = self
 
@@ -650,7 +664,7 @@ module ActiveRecord
     end
 
     def preload_associations(records) # :nodoc:
-      byebug
+      # byebug
       preload = preload_values
       preload += includes_values unless eager_loading?
       preloader = nil

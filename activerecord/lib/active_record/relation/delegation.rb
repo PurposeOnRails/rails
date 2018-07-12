@@ -79,7 +79,7 @@ module ActiveRecord
       private
 
         def method_missing(method, *args, &block)
-          byebug
+          # byebug
           if @klass.respond_to?(method)
             self.class.delegate_to_scoped_klass(method)
             scoping { @klass.public_send(method, *args, &block) }
@@ -100,7 +100,7 @@ module ActiveRecord
 
     module ClassMethods # :nodoc:
       def create(klass, *args)
-        byebug
+        # byebug
         relation_class_for(klass).new(klass, *args)
       end
 

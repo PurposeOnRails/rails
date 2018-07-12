@@ -27,7 +27,7 @@ module ActiveRecord
       delegate :options, to: :reflection
 
       def initialize(owner, reflection)
-        byebug
+        # byebug
         reflection.check_validity!
 
         @owner, @reflection = owner, reflection
@@ -54,7 +54,7 @@ module ActiveRecord
 
       # Has the \target been already \loaded?
       def loaded?
-        byebug
+        # byebug
         @loaded
       end
 
@@ -72,7 +72,7 @@ module ActiveRecord
       #
       # Note that if the target has not been loaded, it is not considered stale.
       def stale_target?
-        byebug 
+        # byebug 
         !inversed && loaded? && @stale_state != stale_state
       end
 
@@ -157,7 +157,7 @@ module ActiveRecord
         @target = find_target if (@stale_state && stale_target?) || find_target?
 
         loaded! unless loaded?
-        byebug
+        # byebug
         target
       rescue ActiveRecord::RecordNotFound
         reset
