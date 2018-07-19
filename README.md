@@ -1,6 +1,41 @@
-# Welcome to Rails
+# Welcome to PurposeOnRails
 
-## What's Rails
+Purpose on Rails is an extension of the Ruby on Rails web-framework that
+offers support for purpose-aware and purpose-respecting applications.
+Purpose Limitation is one of the major principles of the new European
+Law, the GDPR. Also, purpose limitation is generally a pretty nice idea!
+With PurposeOnRails (PoR) you can easily allow users to manage purposes
+of their data items and respect them when querying.
+
+## Basics
+Create a new application using the normal `rails new my_app` command.
+There is a new optional flag (default is true) that allows you to create
+a purposeful application: `--purposeful=true`. This will create a demo
+purpose tree file that you can use to model your purposes, as well as
+some files for automatic view creation etc. For example, there's a
+`Purpose` Mode, View, Controller setup baked right in. Just add it to
+your routes and off you go.
+
+Scaffolding has also been adapted to generate purpose-aware data.
+For every column (unless specified otherwise) a purpose partner column
+is automatically generated. Controllers can handle these partner
+attributes out of the box and generated views also include an editor for
+them for the user.
+
+ActiveRecord has been extended by a `for` method. When writing queries,
+don't forget to specify for which purpose you are querying. A normal
+query should now look something like this:
+```
+User.where(name: 'Jane Doe')
+    .where("age > ?", 50)
+    .select(:email)
+    .for(purpose_id)
+```
+If you don't include a purpose_id when querying, no data will be
+returned. If you include a purpose_id, only the data is returned that
+the user whitelisted for that specific purpose.
+
+## So what is Ruby on Rails anyways?
 
 Rails is a web-application framework that includes everything needed to
 create database-backed web applications according to the
