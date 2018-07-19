@@ -7,6 +7,8 @@ Law, the GDPR. Also, purpose limitation is generally a pretty nice idea!
 With PurposeOnRails (PoR) you can easily allow users to manage purposes
 of their data items and respect them when querying.
 
+![purpose demo](purpose_demo.png)
+
 ## Basics
 Create a new application using the normal `rails new my_app` command.
 There is a new optional flag (default is true) that allows you to create
