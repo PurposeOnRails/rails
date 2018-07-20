@@ -155,7 +155,6 @@ module ActiveRecord
       end
 
       def find(*ids) # :nodoc:
-        # byebug
         # We don't have cache keys for this stuff yet
         return super unless ids.length == 1
         return super if block_given? ||
@@ -169,7 +168,6 @@ module ActiveRecord
 
         key = primary_key
 
-        # byebug
         statement = cached_find_by_statement(key) { |params|
           where(key => params.bind).limit(1)
         }
@@ -186,6 +184,7 @@ module ActiveRecord
       end
 
       def find_by(*args) # :nodoc:
+        # byebug
         return super if scope_attributes? || reflect_on_all_aggregations.any?
 
         hash = args.first
@@ -283,9 +282,7 @@ module ActiveRecord
         end
 
         def relation
-          # byebug
           relation = Relation.create(self)
-          # byebug
 
           if finder_needs_type_condition? && !ignore_default_scope?
             relation.where!(type_condition)

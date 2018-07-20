@@ -26,14 +26,13 @@ module ActiveRecord
     attr_reader :table, :klass, :loaded, :predicate_builder
     # ====================================
     # !!! Altered by prails
-    attr_accessor :skip_preloading_value, :purpose_fields, :for_purpose
+    attr_accessor :skip_preloading_value, :purpose_fields, :for_purpose, :query_columns
     # ====================================
     alias :model :klass
     alias :loaded? :loaded
     alias :locked? :lock_value
 
     def initialize(klass, table: klass.arel_table, predicate_builder: klass.predicate_builder, values: {})
-      # byebug
       @klass  = klass
       @table  = table
       @values = values
@@ -41,18 +40,18 @@ module ActiveRecord
       @loaded = false
       @predicate_builder = predicate_builder
       @delegate_to_klass = false
-      @for_purpose = -1
 
       # ======================================================
       # !!! Added by prails
       # 
+      @for_purpose = -1
+      @query_columns = {}
       @purpose_fields = []
       @klass.attribute_names.each do |attribute|
         if attribute[-4..-1] == "_aip"
           @purpose_fields << attribute[0..-5]
         end
       end
-      # byebug
       # ======================================================
     end
 
@@ -246,15 +245,12 @@ module ActiveRecord
 
     # Converts relation objects to Array.
     def to_ary
-      # byebug
       records.dup
     end
     alias to_a to_ary
 
     def records # :nodoc:
-      # byebug
       load
-      # byebug
 
       # ======================================================
       # !!! Added by prails
@@ -273,8 +269,12 @@ module ActiveRecord
         end
       end
 
+
+
       # this sanitizes the attributs of the records themselves. This counts for normal relations and also for associations, if there are records left
       # checks each attribute's "_aip" field if the purpose is contained
+      records_to_delete = []
+
       if self.for_purpose and not self.purpose_fields.empty?
         @records.each do |record|
           record.attributes.each do |k,v|
@@ -290,13 +290,30 @@ module ActiveRecord
               if not purposes.include? self.for_purpose
                 record[k] = nil
               end
+
+              if not self.query_columns.blank?
+                if self.query_columns.include? k.to_sym
+                  # in this case there was a query condition based on the columns present in @query_columns
+                  # find_by e.g. also uses this as well as .where() queries. 
+                  # If records where found based on this but the column was not allowed for the given purpose, we have to delete the whole record
+                  if not purposes.include? self.for_purpose
+                    records_to_delete << record
+                  end
+                end
+              end
+
             end
           end
         end
       end
-      # byebug
+      @records_dup = @records.dup
+      records_to_delete.each do |record|
+        @records_dup.delete(record)
+      end
 
-      @records
+      # byebug
+      # @records
+      @records_dup
     end
 
     # Serializes the relation objects Array.

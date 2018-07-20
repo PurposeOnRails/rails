@@ -65,7 +65,6 @@ module ActiveRecord
     #   Person.where(name: 'Spartacus', rating: 4).pluck(:field1, :field2)
     #   # returns an Array of the required fields.
     def find(*args)
-        # byebug
       return super if block_given?
       find_with_ids(*args)
     end

@@ -49,6 +49,14 @@ module ActiveRecord
         class_name: name
       }
 
+      # binds.each do 
+      #   column = ""
+      #   column = binds.first.name unless not binds.first.name
+      #   if self.attribute_names.include? column += "_aip"
+      #     # in this case the query was based on a column that has an _aip column and therefore purposes attached
+      #   end
+      # end
+
       message_bus.instrument("instantiation.active_record", payload) do
         result_set.map { |record| instantiate(record, column_types, &block) }
       end
