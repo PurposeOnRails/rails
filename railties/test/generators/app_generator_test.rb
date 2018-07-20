@@ -23,6 +23,7 @@ DEFAULT_APP_FILES = %w(
   app/channels/application_cable/connection.rb
   app/controllers
   app/controllers/application_controller.rb
+  app/controllers/purposes_controller.rb
   app/controllers/concerns
   app/helpers
   app/helpers/application_helper.rb

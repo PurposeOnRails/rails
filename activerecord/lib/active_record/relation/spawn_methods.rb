@@ -41,6 +41,7 @@ module ActiveRecord
     end
 
     def merge!(other) # :nodoc:
+      # byebug
       if other.is_a?(Hash)
         Relation::HashMerger.new(self, other).merge
       elsif other.is_a?(Relation)
