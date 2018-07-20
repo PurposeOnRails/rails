@@ -186,6 +186,7 @@ module ActiveRecord
       end
 
       def find_by(*args) # :nodoc:
+        # byebug
         return super if scope_attributes? || reflect_on_all_aggregations.any?
 
         hash = args.first

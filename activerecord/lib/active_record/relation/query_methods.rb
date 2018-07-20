@@ -124,7 +124,11 @@ module ActiveRecord
       # byebug
       if args.size == 1
         # und gott sprach: es darf nur einen purpose geben
-        self.for_purpose = args.first
+        if args.first.is_a? Integer
+          self.for_purpose = args.first
+        else
+          raise ArgumentError, "purpose-ID must be of type Integer."
+        end
       else
         # hier unterschiedliche exceptions raisen, je nachdem ob keiner oder zu viele purposes angegeben wurden
         if args.size < 1
@@ -606,6 +610,17 @@ module ActiveRecord
     # If the condition is any blank-ish object, then #where is a no-op and returns
     # the current relation.
     def where(opts = :chain, *rest)
+      # byebug
+      # ===============================================================
+      # Added by Prails
+      # 
+      # ===============================================================
+      if not opts.blank?
+        self.query_columns = opts
+      end
+
+      # ===============================================================
+
       if :chain == opts
         WhereChain.new(spawn)
       elsif opts.blank?
