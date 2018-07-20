@@ -396,7 +396,7 @@ def parse(purpose, pid)
     end
   end
 
-  le_hash = { 'id' => node_id, 'name' => name }
+  le_hash = { 'id' => node_id, 'name' => name.gsub('_', ' ') }
   le_hash['parent_id'] = pid unless pid.nil?
 
   purposes.merge!(name => le_hash)
@@ -439,9 +439,102 @@ file. If you encounter any errors, your schema is most likely corrupt.
 
 Things to note:
 - every purpose needs the following attributes
-  - name: a descriptive, identifying name (unique!)
+  - name: a descriptive, identifying name (unique!, snake_case)
   - children: embedded child purposes (optional)
 - node names are ignored, only the name attribute is used
+
+## Purpose Views
+
+Along with the seeds file, a purposes_controller.rb as well as show and index
+view files are also generated.
+If desired, simply add "resources :purposes" to your config/routes.rb file to
+have an interface to inspect purposes.
+            HEREDOC
+          )
+        end
+
+        # write purposes controller
+
+        `mkdir app/controllers`
+
+        File.open('app/controllers/purposes_controller.rb', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+class PurposesController < ApplicationController
+  def index
+    @purposes = Purpose.all
+  end
+
+  def show
+    @purpose = Purpose.find(params[:id])
+  end
+end
+            HEREDOC
+          )
+        end
+
+        # write purposes views
+
+        `mkdir app/views`
+        `mkdir app/views/purposes`
+
+        File.open('app/views/purposes/index.html.erb', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+<h1>Purposes</h1>
+
+<%= render 'table', purposes: @purposes %>
+            HEREDOC
+          )
+        end
+
+        File.open('app/views/purposes/show.html.erb', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+<h1>Purpose</h1>
+<p>
+  <strong>Name:</strong>
+  <%= @purpose.name %>
+</p>
+
+<p>
+  <strong>ParentId:</strong>
+  <%= @purpose.parent_id %>
+</p>
+
+<h2>Direct Children</h2>
+
+<%= render 'table', purposes: @purpose.children %>
+
+<%= link_to 'Back', purposes_path %>
+            HEREDOC
+          )
+        end
+
+        File.open('app/views/purposes/_table.html.erb', 'w') do |file|
+          file.write(
+            <<~HEREDOC
+<table>
+  <thead>
+    <tr>
+      <th>Id</th>
+      <th>Name</th>
+      <th>parent_id</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% purposes.each do |purpose| %>
+      <tr>
+        <td><%= purpose.id %></td>
+        <td><%= purpose.name %></td>
+        <td><%= purpose.parent_id %></td>
+        <td><%= link_to 'Show', purpose %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
             HEREDOC
           )
         end
