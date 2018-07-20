@@ -33,7 +33,6 @@ module ActiveRecord
     alias :locked? :lock_value
 
     def initialize(klass, table: klass.arel_table, predicate_builder: klass.predicate_builder, values: {})
-      # byebug
       @klass  = klass
       @table  = table
       @values = values
@@ -52,7 +51,6 @@ module ActiveRecord
           @purpose_fields << attribute[0..-5]
         end
       end
-      # byebug
       # ======================================================
     end
 
@@ -246,16 +244,12 @@ module ActiveRecord
 
     # Converts relation objects to Array.
     def to_ary
-      # byebug
       records.dup
-      # byebug
     end
     alias to_a to_ary
 
     def records # :nodoc:
-      # byebug
       load
-      # byebug
 
       # ======================================================
       # !!! Added by prails
