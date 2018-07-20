@@ -78,7 +78,6 @@ module ActiveRecord
     #   Post.find_by name: 'Spartacus', rating: 4
     #   Post.find_by "published_at < ?", 2.weeks.ago
     def find_by(arg, *args)
-        # byebug
       where(arg, *args).take
     rescue ::RangeError
       nil
@@ -101,7 +100,6 @@ module ActiveRecord
     #   Person.take(5) # returns 5 objects fetched by SELECT * FROM people LIMIT 5
     #   Person.where(["name LIKE '%?'", name]).take
     def take(limit = nil)
-        # byebug
       limit ? find_take_with_limit(limit) : find_take
     end
 
